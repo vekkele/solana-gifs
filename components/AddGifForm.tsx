@@ -26,14 +26,14 @@ function AddGifForm() {
   return (
     <form className="my-4" onSubmit={onSubmit}>
       <input
-        className="px-2 py-1 rounded-sm"
+        className="px-3 py-2 rounded-l-2xl"
         type="text"
         placeholder="Enter gif link here"
         value={inputValue}
         onChange={onChange}
       />
       <button
-        className={`px-2 py-1 rounded-md ml-2 ${inputValue.length === 0 ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700'}`}
+        className={`px-3 py-2 rounded-r-2xl uppercase ${inputValue.length === 0 ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-700'}`}
         type="submit"
         disabled={inputValue.length === 0}
       >

@@ -6,7 +6,7 @@ import WalletContextProvider from '../components/WalletContextProvider';
 export default function Home() {
   return (
     <WalletContextProvider>
-      <header className="flex justify-end items-center h-20 px-4 m-2 rounded-2xl bg-slate-500">
+      <header className="flex justify-end items-center h-16 px-4 m-2 rounded-full bg-purple-900/40">
         <WalletButton />
       </header>
       <main className="flex flex-col items-center flex-auto min-h-screen py-10 px-0">
