@@ -4,6 +4,12 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
+  images: {
+    remotePatterns: [
+      { hostname: '**.giphy.com' },
+      { hostname: 'giphy.com' },
+    ],
+  },
 }
 
 module.exports = nextConfig

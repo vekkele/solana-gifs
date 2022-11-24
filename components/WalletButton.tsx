@@ -1,16 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletDisconnectButton, WalletModalButton, WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function WalletButton() {
-  const [buttonVisible, setButtonVisible] = useState(false);
-
-  useEffect(() => setButtonVisible(true), []);
+  const { connected } = useWallet();
 
   return (
     <WalletModalProvider>
-      {buttonVisible && <WalletMultiButton />}
+      {connected ? <WalletDisconnectButton /> : <WalletModalButton />}
     </WalletModalProvider>
   );
 }
