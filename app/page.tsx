@@ -1,3 +1,4 @@
+import AddGifForm from '../components/AddGifForm';
 import GifGrid from '../components/GifGrid';
 import WalletButton from '../components/WalletButton';
 import WalletContextProvider from '../components/WalletContextProvider';
@@ -11,6 +12,7 @@ export default function Home() {
       <main className="flex flex-col items-center flex-auto min-h-screen py-10 px-0">
         <h1 className="text-4xl font-bold mb-4">GIF Portal</h1>
         <p>View your favourite gifs through solana blockchain</p>
+        <AddGifForm />
         <GifGrid />
       </main>
     </WalletContextProvider>

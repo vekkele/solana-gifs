@@ -2,6 +2,7 @@
 
 import { useWallet } from '@solana/wallet-adapter-react';
 import Image from 'next/image'
+import { useEffect, useState } from 'react';
 
 const TEST_GIFS = [
   'https://media.giphy.com/media/4ilFRqgbzbx4c/giphy.gif',
@@ -12,7 +13,16 @@ const TEST_GIFS = [
 ]
 
 export default function GifGrid() {
+  const [gifList, setGifList] = useState<string[]>([]);
   const { connected } = useWallet();
+
+  useEffect(() => {
+    if (!connected) {
+      console.log('Fetching gif list...');
+    }
+
+    setGifList(TEST_GIFS);
+  }, [connected]);
 
   if (!connected) {
     return (
@@ -22,7 +32,7 @@ export default function GifGrid() {
 
   return (
     <div className="grid gap-4 w-full justify-center p-3 items-center grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]">
-      {TEST_GIFS.map(gif => (
+      {gifList.map(gif => (
         <div key={gif} >
           <Image
             src={gif}
