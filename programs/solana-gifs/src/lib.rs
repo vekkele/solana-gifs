@@ -13,8 +13,16 @@ pub mod solana_gifs {
         Ok(())
     }
 
-    pub fn add_gif(ctx: Context<AddGif>) -> Result<()> {
+    pub fn add_gif(ctx: Context<AddGif>, gif_url: String) -> Result<()> {
         let base_account = &mut ctx.accounts.base_account;
+        let user = &ctx.accounts.user;
+
+        let gif_item = GifItem {
+            gif_url,
+            user_address: user.key(),
+        };
+
+        base_account.gif_list.push(gif_item);
         base_account.total_gifs += 1;
 
         Ok(())
@@ -34,9 +42,17 @@ pub struct Initialize<'info> {
 pub struct AddGif<'info> {
     #[account(mut)]
     pub base_account: Account<'info, BaseAccount>,
+    pub user: Signer<'info>,
+}
+
+#[derive(Debug, Clone, AnchorDeserialize, AnchorSerialize)]
+pub struct GifItem {
+    pub gif_url: String,
+    pub user_address: Pubkey,
 }
 
 #[account]
 pub struct BaseAccount {
     pub total_gifs: u64,
+    pub gif_list: Vec<GifItem>,
 }
