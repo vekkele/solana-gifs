@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
-solana_gifs = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+[programs.devnet]
+solana_gifs = "HuLCc7aj2iw2Zfb2XbVsNQpiixa6MhydxkSdf5CsMTvY"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/vlad/.config/solana/id.json"
 
 [scripts]
