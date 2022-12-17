@@ -1,41 +1,62 @@
 'use client';
 
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
 import Image from 'next/image'
-import { useEffect, useState } from 'react';
-
-const TEST_GIFS = [
-  'https://media.giphy.com/media/4ilFRqgbzbx4c/giphy.gif',
-  'https://media.giphy.com/media/ayMW3eqvuP00o/giphy.gif',
-  'https://media.giphy.com/media/u2LJ0n4lx6jF6/giphy.gif',
-  'https://media.giphy.com/media/naiatn5LxTOsU/giphy.gif',
-  'https://media.giphy.com/media/b5Hcaz7EPz26I/giphy.gif',
-]
+import { useCallback, useEffect, useState } from 'react';
+import useProgram, { baseAccount, GifItem } from '../hooks/useProgram';
 
 export default function GifGrid() {
-  const [gifList, setGifList] = useState<string[]>([]);
-  const { connected } = useWallet();
+  const [gifList, setGifList] = useState<GifItem[] | undefined>();
+  const wallet = useAnchorWallet();
+
+  const { connection } = useConnection();
+  const { program, initializeAccount } = useProgram({ wallet, connection })
+
+  const fetchList = useCallback(async () => {
+    const account = await program?.account.baseAccount.fetchNullable(baseAccount.publicKey);
+    console.log('Got the account', account)
+
+    const gifList = account?.gifList as GifItem[] | undefined;
+
+    setGifList(gifList);
+  }, [program])
+
+  const initialize = useCallback(async () => {
+    await initializeAccount();
+    await fetchList();
+  }, [fetchList, initializeAccount])
 
   useEffect(() => {
-    if (!connected) {
+    if (!wallet) {
       console.log('Fetching gif list...');
     }
 
-    setGifList(TEST_GIFS);
-  }, [connected]);
+    fetchList()
+  }, [wallet, program, fetchList]);
 
-  if (!connected) {
+  if (!wallet) {
     return (
       <div>You need to connect wallet to see gifs</div>
     );
   }
 
+  if (!gifList) {
+    return (
+      <button
+        onClick={initialize}
+        className="px-3 py-2 rounded-2xl bg-purple-700"
+      >
+        Do One-Time Initialization For GIF Program Account
+      </button>
+    )
+  }
+
   return (
     <div className="grid gap-4 w-full justify-center p-3 items-center grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]">
       {gifList.map(gif => (
-        <div key={gif} >
+        <div key={gif.gifUrl} >
           <Image
-            src={gif}
+            src={gif.gifUrl}
             alt=""
             className="w-full h-auto"
             width={0}
