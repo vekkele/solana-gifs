@@ -1,5 +1,6 @@
-import { AnchorProvider, Program, Wallet, web3 } from '@project-serum/anchor';
-import { ConfirmOptions, Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { AnchorProvider, IdlAccounts, IdlTypes, Program } from '@project-serum/anchor';
+import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { useCallback, useEffect, useState } from 'react';
 import { SolanaGifs } from '../../target/types/solana_gifs';
 
@@ -10,22 +11,20 @@ const opts: ConfirmOptions = { preflightCommitment: 'processed' }
 //FIXME: Regenerating on page reload
 export const baseAccount = Keypair.generate();
 
-export interface UseProgramProps {
-  connection: Connection,
-  wallet?: Pick<Wallet, 'publicKey' | 'signAllTransactions' | 'signTransaction'>,
-}
-
 //FIXME: temp workaround for issue: https://github.com/coral-xyz/anchor/issues/1913
-export type GifItem = {
-  gifUrl: string
-  userAddress: web3.PublicKey
-}
+export type GifItem = IdlTypes<SolanaGifs>['GifItem']
 
-export default function useProgram({ connection, wallet }: UseProgramProps) {
+export type BaseAccount = IdlAccounts<SolanaGifs>['baseAccount'] & {
+  gifList?: GifItem[],
+};
+
+export default function useProgram() {
   const [program, setProgram] = useState<Program<SolanaGifs> | null>(null)
 
+  const { connection } = useConnection();
+  const wallet = useAnchorWallet();
+
   const updateProgram = useCallback(async () => {
-    console.log({ wallet });
     if (!wallet) {
       setProgram(null);
       return;
@@ -55,8 +54,17 @@ export default function useProgram({ connection, wallet }: UseProgramProps) {
       .rpc()
   }, [program]);
 
+  const addGif = useCallback(async (url: string) => {
+    await program?.methods
+      .addGif(url)
+      .accounts({ baseAccount: baseAccount.publicKey })
+      .rpc();
+  }, [program]);
+
   return {
+    wallet,
     program,
     initializeAccount,
+    addGif,
   };
 }

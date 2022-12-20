@@ -1,38 +1,34 @@
 'use client';
 
-import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react';
-import useProgram, { baseAccount, GifItem } from '../hooks/useProgram';
+import useProgram, { BaseAccount, baseAccount, GifItem } from '../hooks/useProgram';
 
 export default function GifGrid() {
   const [gifList, setGifList] = useState<GifItem[] | undefined>();
-  const wallet = useAnchorWallet();
+  const { wallet, program, initializeAccount } = useProgram()
 
-  const { connection } = useConnection();
-  const { program, initializeAccount } = useProgram({ wallet, connection })
+  const handleAccountChange = useCallback(async (event: BaseAccount) => {
+    setGifList(event.gifList);
+  }, [])
 
-  const fetchList = useCallback(async () => {
-    const account = await program?.account.baseAccount.fetchNullable(baseAccount.publicKey);
-    console.log('Got the account', account)
+  const subscribeToList = useCallback(() => {
+    const emitter = program?.account.baseAccount.subscribe(baseAccount.publicKey);
 
-    const gifList = account?.gifList as GifItem[] | undefined;
+    emitter?.addListener('change', handleAccountChange);
 
-    setGifList(gifList);
-  }, [program])
-
-  const initialize = useCallback(async () => {
-    await initializeAccount();
-    await fetchList();
-  }, [fetchList, initializeAccount])
+    return emitter;
+  }, [handleAccountChange, program])
 
   useEffect(() => {
     if (!wallet) {
       console.log('Fetching gif list...');
     }
 
-    fetchList()
-  }, [wallet, program, fetchList]);
+    const emitter = subscribeToList();
+
+    return () => { emitter?.removeListener('change', handleAccountChange) };
+  }, [wallet, program, subscribeToList, handleAccountChange]);
 
   if (!wallet) {
     return (
@@ -43,12 +39,18 @@ export default function GifGrid() {
   if (!gifList) {
     return (
       <button
-        onClick={initialize}
+        onClick={initializeAccount}
         className="px-3 py-2 rounded-2xl bg-purple-700"
       >
         Do One-Time Initialization For GIF Program Account
       </button>
     )
+  }
+
+  if (gifList.length === 0) {
+    return (
+      <div>No gifs added. Feel free to submit one</div>
+    );
   }
 
   return (

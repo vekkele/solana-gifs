@@ -3,11 +3,7 @@ import { assert } from "chai";
 import { SolanaGifs, IDL } from "../target/types/solana_gifs";
 
 //FIXME: temp workaround for issue: https://github.com/coral-xyz/anchor/issues/1913
-type GifItem = {
-  gifUrl: string
-  userAddress: anchor.web3.PublicKey
-}
-
+type GifItem = anchor.IdlTypes<SolanaGifs>['GifItem']
 
 describe("solana-gifs", () => {
   const provider = anchor.AnchorProvider.env();

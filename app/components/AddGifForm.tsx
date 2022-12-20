@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react'
 import type { FormEvent, ChangeEvent } from 'react';
+import useProgram from '../hooks/useProgram';
 
 function AddGifForm() {
   const [inputValue, setInputValue] = useState('');
+  const { addGif } = useProgram()
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -12,7 +14,7 @@ function AddGifForm() {
     setInputValue(value);
   }
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (inputValue.length === 0) {
@@ -21,6 +23,10 @@ function AddGifForm() {
     }
 
     console.log(`submit new gif: ${inputValue}`);
+
+    setInputValue('');
+
+    await addGif(inputValue);
   };
 
   return (
