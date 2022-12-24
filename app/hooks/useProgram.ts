@@ -2,8 +2,8 @@ import { AnchorProvider, IdlAccounts, IdlTypes, Program } from '@project-serum/a
 import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { useCallback, useEffect, useState } from 'react';
-import { SolanaGifs } from '../../target/types/solana_gifs';
 import keypair from '../keypair/keypair.json';
+import { SolanaGifs } from '../types/solana_gifs';
 
 const SOLANA_GIFS_PROGRAM = 'HuLCc7aj2iw2Zfb2XbVsNQpiixa6MhydxkSdf5CsMTvY';
 const programId = new PublicKey(SOLANA_GIFS_PROGRAM);
