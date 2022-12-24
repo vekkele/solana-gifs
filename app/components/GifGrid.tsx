@@ -5,12 +5,17 @@ import { useCallback, useEffect, useState } from 'react';
 import useProgram, { BaseAccount, baseAccount, GifItem } from '../hooks/useProgram';
 
 export default function GifGrid() {
-  const [gifList, setGifList] = useState<GifItem[] | undefined>();
-  const { wallet, program, initializeAccount } = useProgram()
+  const [gifList, setGifList] = useState<GifItem[] | undefined>([]);
+  const { wallet, program, initializeAccount, fetchAccount } = useProgram()
 
-  const handleAccountChange = useCallback(async (event: BaseAccount) => {
+  const handleAccountChange = useCallback((event: BaseAccount) => {
     setGifList(event.gifList);
   }, [])
+
+  const fetchList = useCallback(async () => {
+    const account = await fetchAccount();
+    setGifList(account?.gifList);
+  }, [fetchAccount])
 
   const subscribeToList = useCallback(() => {
     const emitter = program?.account.baseAccount.subscribe(baseAccount.publicKey);
@@ -21,14 +26,16 @@ export default function GifGrid() {
   }, [handleAccountChange, program])
 
   useEffect(() => {
-    if (!wallet) {
+    if (!wallet || !program) {
       console.log('Fetching gif list...');
+      return;
     }
 
+    fetchList();
     const emitter = subscribeToList();
 
     return () => { emitter?.removeListener('change', handleAccountChange) };
-  }, [wallet, program, subscribeToList, handleAccountChange]);
+  }, [wallet, program, subscribeToList, handleAccountChange, fetchList]);
 
   if (!wallet) {
     return (

@@ -3,13 +3,14 @@ import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { useCallback, useEffect, useState } from 'react';
 import { SolanaGifs } from '../../target/types/solana_gifs';
+import keypair from '../keypair/keypair.json';
 
 const SOLANA_GIFS_PROGRAM = 'HuLCc7aj2iw2Zfb2XbVsNQpiixa6MhydxkSdf5CsMTvY';
 const programId = new PublicKey(SOLANA_GIFS_PROGRAM);
 const opts: ConfirmOptions = { preflightCommitment: 'processed' }
 
-//FIXME: Regenerating on page reload
-export const baseAccount = Keypair.generate();
+const secret = Object.values(keypair._keypair.secretKey);
+export const baseAccount = Keypair.fromSecretKey(new Uint8Array(secret));
 
 //FIXME: temp workaround for issue: https://github.com/coral-xyz/anchor/issues/1913
 export type GifItem = IdlTypes<SolanaGifs>['GifItem']
@@ -46,6 +47,12 @@ export default function useProgram() {
     updateProgram();
   }, [updateProgram]);
 
+  const fetchAccount = useCallback(async () => {
+    const account = await program?.account.baseAccount.fetchNullable(baseAccount.publicKey) as BaseAccount | null;
+
+    return account;
+  }, [program]);
+
   const initializeAccount = useCallback(async () => {
     await program?.methods
       .initialize()
@@ -66,5 +73,6 @@ export default function useProgram() {
     program,
     initializeAccount,
     addGif,
+    fetchAccount,
   };
 }
